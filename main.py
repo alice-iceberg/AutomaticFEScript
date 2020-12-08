@@ -950,7 +950,7 @@ def add_sleep_values():
 def social_activity_value_calculation():
     weight = 10
     social_activity_threshold = 500
-    dataframe = pd.read_csv('extracted_features_fixed.csv', delimiter=',', header=0)
+    dataframe = pd.read_csv('extracted_features.csv', delimiter=',', header=0)
     social_activity_values = []
     social_activity_scores = []
 
@@ -975,6 +975,49 @@ def social_activity_value_calculation():
     dataframe['social_act_value'] = social_activity_values
     dataframe['social_act_score'] = social_activity_scores
     dataframe.to_csv('features_output_with_social_act.csv', index=False)
+
+
+def leave_only_selected_people():
+    filenames = ['part2/activities.csv',
+                 'part2/app_usage.csv',
+                 'part2/ema_responses.csv',
+                 'part2/geofencing.csv',
+                 'part2/gps_locations.csv',
+                 'part2/hrm.csv',
+                 'part2/light.csv',
+                 'part2/max_dist_from_home.csv',
+                 'part2/max_dist_two_locations.csv',
+                 'part2/num_of_dif_places.csv',
+                 'part2/phone_calls.csv',
+                 'part2/radius_of_gyration.csv',
+                 'part2/significant_motion.csv',
+                 'part2/steps.csv',
+                 'part2/total_dist_covered.csv',
+                 'part2/unlock_duration.csv']
+
+    users = ['jungjun0402', 'KEY', 'kkh', 'lhj', 'miegul', 'mike', 'min', 'misohlee', 'otlight', 'prji17', 'Rose',
+             'sky', 'songster2', 'windlumi', 'wooazza', 'youngnee']
+
+    for filename in filenames:
+        filename_output = filename
+        dataframe = pd.read_csv(filename, delimiter=',', header=0)
+        dataframe = dataframe.drop(dataframe[(dataframe.username_id != users[0]) & (dataframe.username_id != users[1])
+                                             & (dataframe.username_id != users[2]) & (
+                                                     dataframe.username_id != users[3]) & (
+                                                     dataframe.username_id != users[4]) &
+                                             (dataframe.username_id != users[5]) & (
+                                                     dataframe.username_id != users[6]) & (
+                                                     dataframe.username_id != users[7]) &
+                                             (dataframe.username_id != users[8]) & (
+                                                     dataframe.username_id != users[9]) & (
+                                                     dataframe.username_id != users[10]) & (
+                                                     dataframe.username_id != users[11]) &
+                                             (dataframe.username_id != users[12]) & (
+                                                     dataframe.username_id != users[13]) & (
+                                                     dataframe.username_id != users[14]) &
+                                             (dataframe.username_id != users[15])].index)
+
+        dataframe.to_csv(filename_output, index=False)
 
 
 def convert_ema_to_symptom_scores():
@@ -1025,13 +1068,15 @@ def convert_ema_to_symptom_scores():
 
 def main():
     drop_no_ema_records()
-    extract_features()
+    extract_features()  # extracted_features.csv'
     # fix_days_and_ema_orders()  # extracted_features_fixed.csv
-    # social_activity_value_calculation()  # features_output_with_social_act.csv
+    social_activity_value_calculation()  # features_output_with_social_act.csv
     get_sleep_duration()
     # add_sleep_values()  # extracted features with sleep file
     # sort_dataframe()  # extracted_features_sorted.csv
-    #convert_ema_to_symptom_scores()  # extracted_features_with_scores(ema).csv
+    # convert_ema_to_symptom_scores()  # extracted_features_with_scores(ema).csv
+
+    # leave_only_selected_people()
 
 
 if __name__ == "__main__":
