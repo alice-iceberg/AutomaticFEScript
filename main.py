@@ -1071,7 +1071,7 @@ def main():
     extract_features()  # extracted_features.csv'
     # fix_days_and_ema_orders()  # extracted_features_fixed.csv
     social_activity_value_calculation()  # features_output_with_social_act.csv
-    get_sleep_duration()
+    # get_sleep_duration()
     # add_sleep_values()  # extracted features with sleep file
     # sort_dataframe()  # extracted_features_sorted.csv
     # convert_ema_to_symptom_scores()  # extracted_features_with_scores(ema).csv
