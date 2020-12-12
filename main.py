@@ -623,7 +623,7 @@ def extract_features():
         ]
 
         header = True
-        ema_rows = pd.read_csv('ema_responses_filtered_labT.csv')
+        ema_rows = pd.read_csv('ema_responses_filtered_msi.csv')
 
         import datetime
         print("Features extraction start time: {}".format(datetime.datetime.now()))
@@ -828,7 +828,7 @@ def extract_features():
                 df = df[columns]
                 mode = 'w' if header else 'a'
 
-                df.to_csv('extracted_features_2305small_labT.csv',
+                df.to_csv('extracted_features_2305small_msi.csv',
                           encoding='utf-8', mode=mode, header=header, index=False)
                 header = False
 
