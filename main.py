@@ -997,7 +997,7 @@ def leave_only_selected_people():
     users = ['A1', 'songster2', 'KEY', 'misohlee', 'jiyoung', 'min', 'jiu']
     filename = 'all/ema_responses.csv'
 
-    filename_output = 'ema_responses_filtered_lab.csv'
+    filename_output = 'ema_responses_filtered_labt.csv'
     dataframe = pd.read_csv(filename, delimiter=',', header=0)
     dataframe = dataframe.drop(dataframe[(dataframe.username_id != users[0]) & (dataframe.username_id != users[1])
                                          & (dataframe.username_id != users[2]) & (
