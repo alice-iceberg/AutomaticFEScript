@@ -623,7 +623,7 @@ def extract_features():
         ]
 
         header = True
-        ema_rows = pd.read_csv('ema_responses_filtered_mac.csv')
+        ema_rows = pd.read_csv('ema_responses_filtered_labT.csv')
 
         import datetime
         print("Features extraction start time: {}".format(datetime.datetime.now()))
@@ -828,7 +828,7 @@ def extract_features():
                 df = df[columns]
                 mode = 'w' if header else 'a'
 
-                df.to_csv('extracted_features_2305small_mac.csv',
+                df.to_csv('extracted_features_2305small_labT.csv',
                           encoding='utf-8', mode=mode, header=header, index=False)
                 header = False
 
@@ -994,17 +994,13 @@ def leave_only_selected_people():
     #              'part2/total_dist_covered.csv',
     #              'part2/unlock_duration.csv']
 
-    users = ['A1', 'songster2', 'KEY', 'misohlee', 'jiyoung', 'min', 'jiu']
+    users = ['enti1', 'prji17','flqhs7962']
     filename = 'all/ema_responses.csv'
 
-    filename_output = 'ema_responses_filtered_labt.csv'
+    filename_output = 'ema_responses_filtered_msi.csv'
     dataframe = pd.read_csv(filename, delimiter=',', header=0)
     dataframe = dataframe.drop(dataframe[(dataframe.username_id != users[0]) & (dataframe.username_id != users[1])
-                                         & (dataframe.username_id != users[2]) & (
-                                                 dataframe.username_id != users[3]) & (
-                                                 dataframe.username_id != users[4]) &
-                                         (dataframe.username_id != users[5]) &
-                                         (dataframe.username_id != users[6])].index)
+                                         & (dataframe.username_id != users[2])].index)
 
     dataframe = dataframe.drop(dataframe[(dataframe.mood == -1)].index)
 
@@ -1058,7 +1054,7 @@ def convert_ema_to_symptom_scores():
 
 
 def main():
-    #leave_only_selected_people()
+    # leave_only_selected_people()
     # drop_no_ema_records()
     extract_features()  # extracted_features.csv'
     # fix_days_and_ema_orders()  # extracted_features_fixed.csv
