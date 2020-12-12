@@ -64,14 +64,14 @@ def get_filename_from_data_src(filenames, data_src, username):
 
 def from_timestamp_to_month(timestamp):
     timestamp = int(timestamp)
-    dt = datetime.fromtimestamp(timestamp / 1000.0)
+    dt = datetime.fromtimestamp(timestamp)
     month = dt.month
     return month
 
 
 def from_timestamp_to_day(timestamp):
     timestamp = int(timestamp)
-    dt = datetime.fromtimestamp(timestamp / 1000.0)
+    dt = datetime.fromtimestamp(timestamp)
     day = dt.day
     return day
 
@@ -85,7 +85,7 @@ def from_timestamp_to_ema_order(timestamp):
     timestamp = int(timestamp)
     ema_order = 0
 
-    dt = datetime.fromtimestamp(timestamp / 1000.0)
+    dt = datetime.fromtimestamp(timestamp)
     if 0 <= dt.hour < 10 or 22 <= dt.hour <= 23:
         ema_order = 1
     elif 10 <= dt.hour < 14:
@@ -623,7 +623,7 @@ def extract_features():
         ]
 
         header = True
-        ema_rows = pd.read_csv('ema_responses_filtered.csv')
+        ema_rows = pd.read_csv('ema_responses_filtered_mac.csv')
 
         import datetime
         print("Features extraction start time: {}".format(datetime.datetime.now()))
@@ -637,201 +637,200 @@ def extract_features():
             days.append(from_timestamp_to_day(int(row.time_expected)))
             months.append(from_timestamp_to_month(int(row.time_expected)))
 
-            if int(row.day_num) <= 35:
-                thirty_mins_constant = 1800
-                end_time_decrement = 0
-                counter = 0
+            thirty_mins_constant = 1800
+            end_time_decrement = 0
+            counter = 0
 
-                while end_time_decrement < 14400:
-                    counter += 1
-                    end_time = int(row.time_expected)
-                    end_time -= end_time_decrement
-                    end_time_decrement += 1800  # 30 minutes
+            while end_time_decrement < 14400:
+                counter += 1
+                end_time = int(row.time_expected)
+                end_time -= end_time_decrement
+                end_time_decrement += 1800  # 30 minutes
 
-                    start_time = end_time - thirty_mins_constant  # 14400sec = 4 hours before each EMA
+                start_time = end_time - thirty_mins_constant  # 14400sec = 4 hours before each EMA
 
-                    if start_time < 0:
-                        continue
+                if start_time < 0:
+                    continue
 
-                    print("Start time: ", start_time, "End time:", end_time)
+                print("Start time: ", start_time, "End time:", end_time)
 
-                    unlock_data = get_unlock_result(
-                        "unlock_duration.csv", start_time,
-                        end_time,
-                        row.username_id)
-                    unlock_at_home_data = get_unlock_duration_at_location(
-                        "geofencing.csv",
-                        "unlock_duration.csv",
-                        start_time,
-                        end_time, LOCATION_HOME, row.username_id)
-                    unlock_at_univ_data = get_unlock_duration_at_location(
-                        "geofencing.csv",
-                        "unlock_duration.csv",
-                        start_time,
-                        end_time, LOCATION_UNIVERSITY, row.username_id)
+                unlock_data = get_unlock_result(
+                    "unlock_duration.csv", start_time,
+                    end_time,
+                    row.username_id)
+                unlock_at_home_data = get_unlock_duration_at_location(
+                    "geofencing.csv",
+                    "unlock_duration.csv",
+                    start_time,
+                    end_time, LOCATION_HOME, row.username_id)
+                unlock_at_univ_data = get_unlock_duration_at_location(
+                    "geofencing.csv",
+                    "unlock_duration.csv",
+                    start_time,
+                    end_time, LOCATION_UNIVERSITY, row.username_id)
 
-                    unlock_at_library_data = get_unlock_duration_at_location(
-                        "geofencing.csv",
-                        "unlock_duration.csv",
-                        start_time,
-                        end_time, LOCATION_LIBRARY, row.username_id)
+                unlock_at_library_data = get_unlock_duration_at_location(
+                    "geofencing.csv",
+                    "unlock_duration.csv",
+                    start_time,
+                    end_time, LOCATION_LIBRARY, row.username_id)
 
-                    total_distance_data = get_total_distance(
-                        "total_dist_covered.csv",
-                        start_time,
-                        end_time,
-                        row.username_id)
+                total_distance_data = get_total_distance(
+                    "total_dist_covered.csv",
+                    start_time,
+                    end_time,
+                    row.username_id)
 
-                    std_displacement_data = get_std_of_displacement(
-                        "std_of_displacement.csv",
-                        start_time,
-                        end_time, row.username_id)
+                std_displacement_data = get_std_of_displacement(
+                    "std_of_displacement.csv",
+                    start_time,
+                    end_time, row.username_id)
 
-                    steps_data = get_steps(
-                        "steps.csv",
-                        start_time, end_time, row.username_id)
+                steps_data = get_steps(
+                    "steps.csv",
+                    start_time, end_time, row.username_id)
 
-                    sig_motion_data = get_sig_motion(
-                        "significant_motion.csv",
-                        start_time,
-                        end_time,
-                        row.username_id)
+                sig_motion_data = get_sig_motion(
+                    "significant_motion.csv",
+                    start_time,
+                    end_time,
+                    row.username_id)
 
-                    rad_of_gyration_data = get_radius_of_gyration(
-                        "radius_of_gyration.csv",
-                        start_time, end_time,
-                        row.username_id)
+                rad_of_gyration_data = get_radius_of_gyration(
+                    "radius_of_gyration.csv",
+                    start_time, end_time,
+                    row.username_id)
 
-                    calls_data = get_phonecall(
-                        "phone_calls.csv", start_time,
-                        end_time,
-                        row.username_id)
+                calls_data = get_phonecall(
+                    "phone_calls.csv", start_time,
+                    end_time,
+                    row.username_id)
 
-                    num_of_dif_places_data = get_num_of_dif_places(
-                        "num_of_dif_places.csv",
-                        start_time, end_time,
-                        row.username_id)
+                num_of_dif_places_data = get_num_of_dif_places(
+                    "num_of_dif_places.csv",
+                    start_time, end_time,
+                    row.username_id)
 
-                    max_dist_two_locations_data = get_max_dist_two_locations(
-                        "max_dist_two_locations.csv",
-                        start_time, end_time, row.username_id)
+                max_dist_two_locations_data = get_max_dist_two_locations(
+                    "max_dist_two_locations.csv",
+                    start_time, end_time, row.username_id)
 
-                    max_dist_home_data = get_max_dist_home(
-                        "max_dist_from_home.csv",
-                        start_time,
-                        end_time,
-                        row.username_id)
+                max_dist_home_data = get_max_dist_home(
+                    "max_dist_from_home.csv",
+                    start_time,
+                    end_time,
+                    row.username_id)
 
-                    light_data = get_light(
-                        "light.csv",
-                        start_time, end_time, row.username_id)
+                light_data = get_light(
+                    "light.csv",
+                    start_time, end_time, row.username_id)
 
-                    hrm_data = get_hrm("hrm.csv",
-                                       start_time,
-                                       end_time, row.username_id)
+                hrm_data = get_hrm("hrm.csv",
+                                   start_time,
+                                   end_time, row.username_id)
 
-                    activity_number_data = get_num_of_dif_activities(
-                        "activities.csv", start_time,
-                        end_time,
-                        row.username_id)
+                activity_number_data = get_num_of_dif_activities(
+                    "activities.csv", start_time,
+                    end_time,
+                    row.username_id)
 
-                    app_usage_dur_data, app_usage_freq_data = get_app_category_usage(
-                        "app_usage.csv",
-                        start_time,
-                        end_time,
-                        row.username_id)
+                app_usage_dur_data, app_usage_freq_data = get_app_category_usage(
+                    "app_usage.csv",
+                    start_time,
+                    end_time,
+                    row.username_id)
 
-                    day_hour_start = 18
-                    day_hour_end = 11
-                    date_start = datetime.datetime.fromtimestamp(end_time)
-                    date_start = date_start - datetime.timedelta(days=1)
-                    date_start = date_start.replace(hour=day_hour_start, minute=0, second=0)
-                    date_end = datetime.datetime.fromtimestamp(end_time)
-                    date_end = date_end.replace(hour=day_hour_end, minute=0, second=0)
+                day_hour_start = 18
+                day_hour_end = 11
+                date_start = datetime.datetime.fromtimestamp(end_time)
+                date_start = date_start - datetime.timedelta(days=1)
+                date_start = date_start.replace(hour=day_hour_start, minute=0, second=0)
+                date_end = datetime.datetime.fromtimestamp(end_time)
+                date_end = date_end.replace(hour=day_hour_end, minute=0, second=0)
 
-                    data = {
-                        'user_id': row.username_id,
-                        'day_num': days[len(days) - 1],
-                        'month': months[len(months) - 1],
-                        'ema': ema_orders[len(ema_orders) - 1],
-                        'phq1': row.interest,
-                        'phq2': row.mood,
-                        'phq3': row.sleep,
-                        'phq4': row.fatigue,
-                        'phq5': row.weight,
-                        'phq6': row.worthlessness,
-                        'phq7': row.concentrate,
-                        'phq8': row.restlessness,
-                        'phq9': row.suicide,
-                        'unlock_duration': unlock_data['duration'],
-                        'unlock_number': unlock_data['number'],
-                        'unlock_duration_home': unlock_at_home_data['duration'],
-                        'unlock_number_home': unlock_at_home_data['number'],
-                        'unlock_duration_univ': unlock_at_univ_data['duration'],
-                        'unlock_number_univ': unlock_at_univ_data['number'],
-                        'unlock_duration_library': unlock_at_library_data['duration'],
-                        'unlock_number_library': unlock_at_library_data['number'],
-                        'total_distance': total_distance_data,
-                        'std_displacement': std_displacement_data,
-                        'steps': steps_data,
-                        'significant_motion': sig_motion_data,
-                        'radius_of_gyration': rad_of_gyration_data,
-                        'in_call_duration': calls_data['in_duration'],
-                        'in_call_number': calls_data['in_number'],
-                        'out_call_duration': calls_data['out_duration'],
-                        'out_call_number': calls_data['out_number'],
-                        'num_of_dif_places': num_of_dif_places_data,
-                        'max_dist_btw_two_locations': max_dist_two_locations_data,
-                        'max_dist_home': max_dist_home_data,
-                        'light_min': light_data['min'],
-                        'light_max': light_data['max'],
-                        'light_avg': light_data['avg'],
-                        'hrm_min': hrm_data['min'],
-                        'hrm_max': hrm_data['max'],
-                        'hrm_avg': hrm_data['avg'],
-                        'still_number': activity_number_data['still'],
-                        'walking_number': activity_number_data['walking'],
-                        'running_number': activity_number_data['running'],
-                        'on_bicycle_number': activity_number_data['on_bicycle'],
-                        'in_vehicle_number': activity_number_data['in_vehicle'],
-                        'on_foot_number': activity_number_data['on_foot'],
-                        'tilting_number': activity_number_data['tilting'],
-                        'unknown_number': activity_number_data['unknown'],
-                        'app_entertainment_music_dur': app_usage_dur_data['Entertainment & Music'],
-                        'app_utilities_dur': app_usage_dur_data['Utilities'],
-                        'app_shopping_dur': app_usage_dur_data['Shopping'],
-                        'app_games_comics_dur': app_usage_dur_data['Games & Comics'],
-                        'app_health_wellness_dur': app_usage_dur_data['Health & Wellness'],
-                        'app_social_communication_dur': app_usage_dur_data['Social & Communication'],
-                        'app_education_dur': app_usage_dur_data['Education'],
-                        'app_travel_dur': app_usage_dur_data['Travel'],
-                        'app_art_design_photo_dur': app_usage_dur_data['Art & Design & Photo'],
-                        'app_news_magazine_dur': app_usage_dur_data['News & Magazine'],
-                        'app_food_drink_dur': app_usage_dur_data['Food & Drink'],
-                        'app_unknown_background_dur': app_usage_dur_data['Unknown & Background'],
-                        'app_others_dur': app_usage_dur_data['Others'],
-                        'app_entertainment_music_freq': app_usage_freq_data['Entertainment & Music'],
-                        'app_utilities_freq': app_usage_freq_data['Utilities'],
-                        'app_shopping_freq': app_usage_freq_data['Shopping'],
-                        'app_games_comics_freq': app_usage_freq_data['Games & Comics'],
-                        'app_health_wellness_freq': app_usage_freq_data['Health & Wellness'],
-                        'app_social_communication_freq': app_usage_freq_data['Social & Communication'],
-                        'app_education_freq': app_usage_freq_data['Education'],
-                        'app_travel_freq': app_usage_freq_data['Travel'],
-                        'app_art_design_photo_freq': app_usage_freq_data['Art & Design & Photo'],
-                        'app_news_magazine_freq': app_usage_freq_data['News & Magazine'],
-                        'app_food_drink_freq': app_usage_freq_data['Food & Drink'],
-                        'app_unknown_background_freq': app_usage_freq_data['Unknown & Background'],
-                        'app_others_freq': app_usage_freq_data['Others'],
-                    }
+                data = {
+                    'user_id': row.username_id,
+                    'day_num': days[len(days) - 1],
+                    'month': months[len(months) - 1],
+                    'ema': ema_orders[len(ema_orders) - 1],
+                    'phq1': row.interest,
+                    'phq2': row.mood,
+                    'phq3': row.sleep,
+                    'phq4': row.fatigue,
+                    'phq5': row.weight,
+                    'phq6': row.worthlessness,
+                    'phq7': row.concentrate,
+                    'phq8': row.restlessness,
+                    'phq9': row.suicide,
+                    'unlock_duration': unlock_data['duration'],
+                    'unlock_number': unlock_data['number'],
+                    'unlock_duration_home': unlock_at_home_data['duration'],
+                    'unlock_number_home': unlock_at_home_data['number'],
+                    'unlock_duration_univ': unlock_at_univ_data['duration'],
+                    'unlock_number_univ': unlock_at_univ_data['number'],
+                    'unlock_duration_library': unlock_at_library_data['duration'],
+                    'unlock_number_library': unlock_at_library_data['number'],
+                    'total_distance': total_distance_data,
+                    'std_displacement': std_displacement_data,
+                    'steps': steps_data,
+                    'significant_motion': sig_motion_data,
+                    'radius_of_gyration': rad_of_gyration_data,
+                    'in_call_duration': calls_data['in_duration'],
+                    'in_call_number': calls_data['in_number'],
+                    'out_call_duration': calls_data['out_duration'],
+                    'out_call_number': calls_data['out_number'],
+                    'num_of_dif_places': num_of_dif_places_data,
+                    'max_dist_btw_two_locations': max_dist_two_locations_data,
+                    'max_dist_home': max_dist_home_data,
+                    'light_min': light_data['min'],
+                    'light_max': light_data['max'],
+                    'light_avg': light_data['avg'],
+                    'hrm_min': hrm_data['min'],
+                    'hrm_max': hrm_data['max'],
+                    'hrm_avg': hrm_data['avg'],
+                    'still_number': activity_number_data['still'],
+                    'walking_number': activity_number_data['walking'],
+                    'running_number': activity_number_data['running'],
+                    'on_bicycle_number': activity_number_data['on_bicycle'],
+                    'in_vehicle_number': activity_number_data['in_vehicle'],
+                    'on_foot_number': activity_number_data['on_foot'],
+                    'tilting_number': activity_number_data['tilting'],
+                    'unknown_number': activity_number_data['unknown'],
+                    'app_entertainment_music_dur': app_usage_dur_data['Entertainment & Music'],
+                    'app_utilities_dur': app_usage_dur_data['Utilities'],
+                    'app_shopping_dur': app_usage_dur_data['Shopping'],
+                    'app_games_comics_dur': app_usage_dur_data['Games & Comics'],
+                    'app_health_wellness_dur': app_usage_dur_data['Health & Wellness'],
+                    'app_social_communication_dur': app_usage_dur_data['Social & Communication'],
+                    'app_education_dur': app_usage_dur_data['Education'],
+                    'app_travel_dur': app_usage_dur_data['Travel'],
+                    'app_art_design_photo_dur': app_usage_dur_data['Art & Design & Photo'],
+                    'app_news_magazine_dur': app_usage_dur_data['News & Magazine'],
+                    'app_food_drink_dur': app_usage_dur_data['Food & Drink'],
+                    'app_unknown_background_dur': app_usage_dur_data['Unknown & Background'],
+                    'app_others_dur': app_usage_dur_data['Others'],
+                    'app_entertainment_music_freq': app_usage_freq_data['Entertainment & Music'],
+                    'app_utilities_freq': app_usage_freq_data['Utilities'],
+                    'app_shopping_freq': app_usage_freq_data['Shopping'],
+                    'app_games_comics_freq': app_usage_freq_data['Games & Comics'],
+                    'app_health_wellness_freq': app_usage_freq_data['Health & Wellness'],
+                    'app_social_communication_freq': app_usage_freq_data['Social & Communication'],
+                    'app_education_freq': app_usage_freq_data['Education'],
+                    'app_travel_freq': app_usage_freq_data['Travel'],
+                    'app_art_design_photo_freq': app_usage_freq_data['Art & Design & Photo'],
+                    'app_news_magazine_freq': app_usage_freq_data['News & Magazine'],
+                    'app_food_drink_freq': app_usage_freq_data['Food & Drink'],
+                    'app_unknown_background_freq': app_usage_freq_data['Unknown & Background'],
+                    'app_others_freq': app_usage_freq_data['Others'],
+                }
 
-                    df = pd.DataFrame(data, index=[0])
-                    df = df[columns]
-                    mode = 'w' if header else 'a'
+                df = pd.DataFrame(data, index=[0])
+                df = df[columns]
+                mode = 'w' if header else 'a'
 
-                    df.to_csv('extracted_features.csv',
-                              encoding='utf-8', mode=mode, header=header, index=False)
-                    header = False
+                df.to_csv('extracted_features_2305small_mac.csv',
+                          encoding='utf-8', mode=mode, header=header, index=False)
+                header = False
 
         print("End time: {}".format(datetime.datetime.now()))
 
@@ -978,46 +977,38 @@ def social_activity_value_calculation():
 
 
 def leave_only_selected_people():
-    filenames = ['part2/activities.csv',
-                 'part2/app_usage.csv',
-                 'part2/ema_responses.csv',
-                 'part2/geofencing.csv',
-                 'part2/gps_locations.csv',
-                 'part2/hrm.csv',
-                 'part2/light.csv',
-                 'part2/max_dist_from_home.csv',
-                 'part2/max_dist_two_locations.csv',
-                 'part2/num_of_dif_places.csv',
-                 'part2/phone_calls.csv',
-                 'part2/radius_of_gyration.csv',
-                 'part2/significant_motion.csv',
-                 'part2/steps.csv',
-                 'part2/total_dist_covered.csv',
-                 'part2/unlock_duration.csv']
+    # filenames = ['part2/activities.csv',
+    #              'part2/app_usage.csv',
+    #              'part2/ema_responses.csv',
+    #              'part2/geofencing.csv',
+    #              'part2/gps_locations.csv',
+    #              'part2/hrm.csv',
+    #              'part2/light.csv',
+    #              'part2/max_dist_from_home.csv',
+    #              'part2/max_dist_two_locations.csv',
+    #              'part2/num_of_dif_places.csv',
+    #              'part2/phone_calls.csv',
+    #              'part2/radius_of_gyration.csv',
+    #              'part2/significant_motion.csv',
+    #              'part2/steps.csv',
+    #              'part2/total_dist_covered.csv',
+    #              'part2/unlock_duration.csv']
 
-    users = ['jungjun0402', 'KEY', 'kkh', 'lhj', 'miegul', 'mike', 'min', 'misohlee', 'otlight', 'prji17', 'Rose',
-             'sky', 'songster2', 'windlumi', 'wooazza', 'youngnee']
+    users = ['A1', 'songster2', 'KEY', 'misohlee', 'jiyoung', 'min', 'jiu']
+    filename = 'all/ema_responses.csv'
 
-    for filename in filenames:
-        filename_output = filename
-        dataframe = pd.read_csv(filename, delimiter=',', header=0)
-        dataframe = dataframe.drop(dataframe[(dataframe.username_id != users[0]) & (dataframe.username_id != users[1])
-                                             & (dataframe.username_id != users[2]) & (
-                                                     dataframe.username_id != users[3]) & (
-                                                     dataframe.username_id != users[4]) &
-                                             (dataframe.username_id != users[5]) & (
-                                                     dataframe.username_id != users[6]) & (
-                                                     dataframe.username_id != users[7]) &
-                                             (dataframe.username_id != users[8]) & (
-                                                     dataframe.username_id != users[9]) & (
-                                                     dataframe.username_id != users[10]) & (
-                                                     dataframe.username_id != users[11]) &
-                                             (dataframe.username_id != users[12]) & (
-                                                     dataframe.username_id != users[13]) & (
-                                                     dataframe.username_id != users[14]) &
-                                             (dataframe.username_id != users[15])].index)
+    filename_output = 'ema_responses_filtered_lab.csv'
+    dataframe = pd.read_csv(filename, delimiter=',', header=0)
+    dataframe = dataframe.drop(dataframe[(dataframe.username_id != users[0]) & (dataframe.username_id != users[1])
+                                         & (dataframe.username_id != users[2]) & (
+                                                 dataframe.username_id != users[3]) & (
+                                                 dataframe.username_id != users[4]) &
+                                         (dataframe.username_id != users[5]) &
+                                         (dataframe.username_id != users[6])].index)
 
-        dataframe.to_csv(filename_output, index=False)
+    dataframe = dataframe.drop(dataframe[(dataframe.mood == -1)].index)
+
+    dataframe.to_csv(filename_output, index=False)
 
 
 def convert_ema_to_symptom_scores():
@@ -1067,10 +1058,11 @@ def convert_ema_to_symptom_scores():
 
 
 def main():
-    drop_no_ema_records()
+    #leave_only_selected_people()
+    # drop_no_ema_records()
     extract_features()  # extracted_features.csv'
     # fix_days_and_ema_orders()  # extracted_features_fixed.csv
-    social_activity_value_calculation()  # features_output_with_social_act.csv
+    # social_activity_value_calculation()  # features_output_with_social_act.csv
     # get_sleep_duration()
     # add_sleep_values()  # extracted features with sleep file
     # sort_dataframe()  # extracted_features_sorted.csv
